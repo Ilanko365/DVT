@@ -1,0 +1,89 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# ==========================================
+# 1. SAMPLE
+# ==========================================
+# Load the dataset. (For large data, a subset fraction like .sample() is used)
+input_file = 'tourism_dataset.csv'
+df_sample = pd.read_csv(input_file)
+
+print("--- 1. SAMPLE PHASE ---")
+print(f"Dataset sampled successfully. Total observations: {len(df_sample)}")
+
+
+# ==========================================
+# 2. EXPLORE
+# ==========================================
+print("\n--- 2. EXPLORE PHASE ---")
+# Statistical summaries & anomaly detection
+print("Data Types & Missing Values:")
+print(df_sample.info())
+print("\nDescriptive Statistics for Numeric Fields:")
+print(df_sample.describe())
+
+
+# ==========================================
+# 3. MODIFY
+# ==========================================
+print("\n--- 3. MODIFY PHASE ---")
+# Drop records containing missing rows
+df_modify = df_sample.dropna().copy()
+
+# Transforming categorical metrics via Label Encoding
+le_country = LabelEncoder()
+le_category = LabelEncoder()
+le_accommodation = LabelEncoder()
+
+df_modify['Country_Encoded'] = le_country.fit_transform(df_modify['Country'])
+df_modify['Category_Encoded'] = le_category.fit_transform(df_modify['Category'])
+df_modify['Accommodation_Encoded'] = le_accommodation.fit_transform(df_modify['Accommodation_Available'])
+
+# Convert potential non-numeric entries in 'Visitors', 'Rating', 'Revenue' to numeric, coercing errors to NaN
+for col in ['Visitors', 'Rating', 'Revenue']:
+    df_modify[col] = pd.to_numeric(df_modify[col], errors='coerce')
+
+# Drop rows where 'Visitors', 'Rating', or 'Revenue' became NaN after coercion
+df_modify.dropna(subset=['Visitors', 'Rating', 'Revenue'], inplace=True)
+print(f"Rows after converting and dropping non-numeric values: {len(df_modify)}")
+
+# Feature Selection and Z-score standardization 
+features = ['Visitors', 'Rating', 'Revenue', 'Category_Encoded', 'Accommodation_Encoded']
+X = df_modify[features]
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+print("Data cleaned, variables encoded, and features scaled.")
+
+
+# ==========================================
+# 4. MODEL
+# ==========================================
+print("\n--- 4. MODEL PHASE ---")
+# Applying a clustering model (K-Means) to discover tourism groups
+k_clusters = 2
+model = KMeans(n_clusters=k_clusters, random_state=42, n_init=10)
+df_modify['Cluster'] = model.fit_predict(X_scaled)
+print(f"K-Means clustering applied successfully with K={k_clusters}.")
+
+
+# ==========================================
+# 5. ASSESS
+# ==========================================
+print("\n--- 5. ASSESS PHASE ---")
+# Evaluating data distribution and quality metrics
+print(df_modify[['Location', 'Country', 'Category', 'Visitors', 'Revenue', 'Cluster']])
+
+# Calculate a Silhouette Score to judge cluster separation strength
+sil_score = silhouette_score(X_scaled, df_modify['Cluster'])
+print(f"\nModel Performance Metric (Silhouette Score): {sil_score:.4f}")
+
+# Export the structured results back to a target destination file
+output_file = 'travel_tourism_semma_output.csv'
+df_modify.to_csv(output_file, index=False)
+print(f"\nFinal assessed output saved to '{output_file}'")
