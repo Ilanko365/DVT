@@ -1,0 +1,104 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# ==============================================================================
+# PHASE 1: BUSINESS UNDERSTANDING
+# ==============================================================================
+"""
+Business Objective: Segment global tourist destinations to optimize targeted marketing
+and resource allocation based on visitor footprints, feedback rating, and gross revenue.
+"""
+print("--- PHASE 1: Business Understanding ---")
+print("Objective: Discover destination tiers to optimize global travel marketing campaigns.")
+
+
+# ==============================================================================
+# PHASE 2: DATA UNDERSTANDING
+# ==============================================================================
+print("\n--- PHASE 2: Data Understanding ---")
+# Load and inspect dataset from input CSV
+input_file = 'tourism_dataset.csv'
+df = pd.read_csv(input_file)
+
+print(f"Data shape loaded from '{input_file}': {df.shape}")
+print("\nFirst Look at Raw Data:")
+print(df.head())
+
+print("\nData Schema & Quality Check:")
+print(df.info())
+
+
+# ==============================================================================
+# PHASE 3: DATA PREPARATION
+# ==============================================================================
+print("\n--- PHASE 3: Data Preparation ---")
+# 1. Handling anomalies or missing cells (if any)
+df_prepared = df.dropna().copy()
+
+# Convert potential non-numeric entries in 'Visitors', 'Rating', 'Revenue' to numeric, coercing errors to NaN
+for col in ['Visitors', 'Rating', 'Revenue']:
+    df_prepared[col] = pd.to_numeric(df_prepared[col], errors='coerce')
+
+# Drop rows where 'Visitors', 'Rating', or 'Revenue' became NaN after coercion
+df_prepared.dropna(subset=['Visitors', 'Rating', 'Revenue'], inplace=True)
+print(f"Rows after converting and dropping non-numeric values: {len(df_prepared)}")
+
+# 2. Transforming and Encoding Qualitative columns
+le_country = LabelEncoder()
+le_category = LabelEncoder()
+le_accommodation = LabelEncoder()
+
+df_prepared['Country_Encoded'] = le_country.fit_transform(df_prepared['Country'])
+df_prepared['Category_Encoded'] = le_category.fit_transform(df_prepared['Category'])
+df_prepared['Accommodation_Encoded'] = le_accommodation.fit_transform(df_prepared['Accommodation_Available'])
+
+# 3. Feature Selection & Scale Normalization (Z-score Scaling)
+features = ['Visitors', 'Rating', 'Revenue', 'Category_Encoded', 'Accommodation_Encoded']
+X = df_prepared[features]
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+print("Transformation Complete: Features selected, label-encoded, and normalized.")
+
+
+# ==============================================================================
+# PHASE 4: MODELING
+# ==============================================================================
+print("\n--- PHASE 4: Modeling ---")
+# Applying K-Means clustering algorithm to separate high-performing vs low-performing sectors
+num_clusters = 2
+kmeans_model = KMeans(n_clusters=num_clusters, random_state=42, n_init=10)
+
+# Injecting the learned segmentation cluster into our dataset
+df_prepared['Cluster'] = kmeans_model.fit_predict(X_scaled)
+print(f"Model Training Complete: Generated {num_clusters} destination clusters.")
+
+
+# ==============================================================================
+# PHASE 5: EVALUATION
+# ==============================================================================
+print("\n--- PHASE 5: Evaluation ---")
+# Check silhouette score to see how distinct our categories are
+sil_score = silhouette_score(X_scaled, df_prepared['Cluster'])
+print(f"Silhouette Evaluation Metric: {sil_score:.4f}")
+
+# Cross-analyze features by Cluster to see if it matches business logic
+cluster_profiles = df_prepared.groupby('Cluster')[['Visitors', 'Rating', 'Revenue']].mean()
+print("\nAverage Metrics per Discovered Cluster Cluster Profile:")
+print(cluster_profiles)
+
+
+# ==============================================================================
+# PHASE 6: DEPLOYMENT
+# ==============================================================================
+print("\n--- PHASE 6: Deployment ---")
+output_file = 'travel_tourism_crisp_dm_output.csv'
+
+# Save the strategically enriched data to an output file for business analysts
+df_prepared.to_csv(output_file, index=False)
+print(f"Deployment Action: Enriched data model exported to '{output_file}' for production dashboard integration.")
