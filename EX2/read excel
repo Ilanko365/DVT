@@ -1,0 +1,5 @@
+import pandas as pd
+df = pd.read_excel("C:/Users/intel/Documents/Top Indian Places to Visit-selected-columns.xlsx")
+print(df.head())
+print(df.info())
+print(df.describe())
