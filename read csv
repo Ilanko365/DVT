@@ -1,0 +1,5 @@
+import pandas as pd
+df = pd.read_csv("C:/Users/intel/Documents/Top Indian Places to Visit-selected-columns.csv")
+print(df.head())
+print(df.info())
+print(df.describe())
