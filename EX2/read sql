@@ -1,0 +1,13 @@
+import pandas as pd
+import sqlite3
+# Read CSV
+df = pd.read_csv("C:/Users/intel/Documents/Top Indian Places to Visit-selected-columns.csv")
+# Connect to database
+conn = sqlite3.connect("travel.db")
+# Create table
+df.to_sql("travel_places", conn, if_exists="replace", index=False)
+conn.commit()
+df = pd.read_sql_query("SELECT * FROM travel_places;", conn)
+print(df.head())
+conn.close()
+print("Table created successfully!")
