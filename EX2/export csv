@@ -1,0 +1,4 @@
+import pandas as pd
+df = pd.read_csv("C:/Users/intel/Documents/Top Indian Places to Visit-selected-columns.csv")
+df.to_csv("travel_export.csv", index=False)
+print("CSV Exported Successfully")
