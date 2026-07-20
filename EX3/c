@@ -1,0 +1,22 @@
+import pandas as pd
+df = pd.read_csv("Top Indian Places to Visit.csv")
+print(df.shape)
+df1 = df.dropna()
+print(df1)
+df2 = df.dropna(axis=0)
+print(df2)
+df3 = df.dropna(axis=1)
+print(df3)
+df4 = df.dropna(how="all")
+print(df4)
+df5 = df.dropna(thresh=10)
+print(df5)
+df6 = df.dropna(subset=["Google review rating"])
+print(df6)
+df7 = df.dropna(subset=[
+    "Google review rating",
+    "Entrance Fee in INR"
+])
+print(df7)
+df.dropna(inplace=True)
+print(df)
