@@ -1,0 +1,33 @@
+import pandas as pd
+df = pd.read_csv("Top Indian Places to Visit.csv")
+num = [
+    "Establishment Year",
+    "time needed to visit in hrs",
+    "Google review rating",
+    "Entrance Fee in INR",
+    "Number of google review in lakhs"
+]
+for i in num:
+    df[i] = pd.to_numeric(df[i], errors="coerce")
+constant = df.fillna("Unknown")
+mean = df.copy()
+for i in num:
+    mean[i] = mean[i].fillna(mean[i].mean())
+median = df.copy()
+for i in num:
+    median[i] = median[i].fillna(median[i].median())
+mode = df.fillna(df.mode().iloc[0])
+forward = df.ffill()
+backward = df.bfill()
+print("Constant")
+print(constant.head())
+print("Mean")
+print(mean.head())
+print("Median")
+print(median.head())
+print("Mode")
+print(mode.head())
+print("Forward Fill")
+print(forward.head())
+print("Backward Fill")
+print(backward.head())
