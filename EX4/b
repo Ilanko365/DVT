@@ -1,0 +1,64 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+# Read Dataset
+df = pd.read_csv("Top Indian Places to Visit.csv")
+# Use only first 10 rows
+df = df.head(10)
+# Convert numeric columns
+num = [
+    "Google review rating",
+    "Entrance Fee in INR",
+    "time needed to visit in hrs",
+    "Number of google review in lakhs"
+]
+for col in num:
+    df[col] = pd.to_numeric(df[col], errors="coerce")
+# View Data
+print("First 5 Rows")
+print(df.head())
+print("\nShape")
+print(df.shape)
+print("\nData Types")
+print(df.dtypes)
+# Filter Rating > 4.5
+print("\nPlaces with Rating > 4.5")
+high_rating = df[df["Google review rating"] > 4.5]
+print(high_rating)
+# Filter Free Entry Places
+print("\nFree Entry Places")
+free_places = df[df["Entrance Fee in INR"] == 0]
+print(free_places)
+# Sort by Rating
+print("\nSorted by Rating")
+sorted_df = df.sort_values(by="Google review rating", ascending=False)
+print(sorted_df)
+# Statistics
+print("\nMean =", df["Google review rating"].mean())
+print("Median =", df["Google review rating"].median())
+print("Mode =")
+print(df["Google review rating"].mode())
+print("Standard Deviation =", df["Google review rating"].std())
+# Summary
+print("\nSummary Statistics")
+print(df.describe())
+# Group By State
+print("\nAverage Rating by State")
+state_avg = df.groupby("State")["Google review rating"].mean()
+print(state_avg)
+# Correlation
+print("\nCorrelation")
+corr = df[["Google review rating","Entrance Fee in INR"]].corr()
+print(corr)
+# Scatter Plot
+plt.scatter(df["Entrance Fee in INR"], df["Google review rating"])
+plt.title("Rating vs Entrance Fee")
+plt.xlabel("Entrance Fee (INR)")
+plt.ylabel("Google Rating")
+plt.grid(True)
+plt.show()
+# Bar Plot
+state_avg.plot(kind="bar")
+plt.title("Average Rating by State")
+plt.xlabel("State")
+plt.ylabel("Average Rating")
+plt.show()
