@@ -1,0 +1,60 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+# Create DataFrame
+data = {
+    "Roll No": [101,102,103,104,105,106],
+    "Name": ["Arun","Bala","Divya","Priya","Ravi","Karthik"],
+    "Department": ["CSE","IT","CSE","AI&DS","IT","AI&DS"],
+    "Marks": [85,78,95,90,72,88],
+    "Attendance": [92,88,96,94,85,91]
+}
+df = pd.DataFrame(data)
+# View Data
+print("First 5 Rows")
+print(df.head())
+print("\nShape")
+print(df.shape)
+print("\nData Types")
+print(df.dtypes)
+# Filter Marks > 85
+print("\nStudents with Marks > 85")
+high_marks = df[df["Marks"] > 85]
+print(high_marks)
+# Filter IT Department
+print("\nIT Department Students")
+it_students = df[df["Department"] == "IT"]
+print(it_students)
+# Sort by Marks
+print("\nSorted by Marks")
+sorted_df = df.sort_values(by="Marks", ascending=False)
+print(sorted_df)
+# Statistics
+print("\nMean =", df["Marks"].mean())
+print("Median =", df["Marks"].median())
+print("Mode =")
+print(df["Marks"].mode())
+print("Standard Deviation =", df["Marks"].std())
+# Summary
+print("\nSummary Statistics")
+print(df.describe())
+# Group By
+print("\nAverage Marks by Department")
+dept_avg = df.groupby("Department")["Marks"].mean()
+print(dept_avg)
+# Correlation
+print("\nCorrelation")
+corr = df[["Marks","Attendance"]].corr()
+print(corr)
+# Scatter Plot
+plt.scatter(df["Attendance"], df["Marks"])
+plt.title("Marks vs Attendance")
+plt.xlabel("Attendance")
+plt.ylabel("Marks")
+plt.grid(True)
+plt.show()
+# Bar Plot
+dept_avg.plot(kind="bar")
+plt.title("Average Marks by Department")
+plt.xlabel("Department")
+plt.ylabel("Average Marks")
+plt.show()
